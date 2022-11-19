@@ -17,7 +17,7 @@ export type Piece = {
 
 export type State = {
 	well: boolean[][];
-	piece: Piece;
+	piece: Piece | null;
 	score: number;
 	queue: PieceType[];
 };

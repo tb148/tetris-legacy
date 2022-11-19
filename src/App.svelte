@@ -52,11 +52,15 @@
 		}
 
 		.tile-alive {
-			background-color: yellow;
+			background-color: green;
 		}
 
 		.tile-dead {
 			background-color: blue;
+		}
+
+		.tile-flat4 {
+			border-top: 1px solid red;
 		}
 	}
 </style>

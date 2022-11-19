@@ -1,0 +1,7 @@
+button {
+	border: 0;
+	font-family: monospace;
+	padding: 0.5rem 0.75rem;
+	background-color: blue;
+	color: white;
+}

@@ -1,7 +1,7 @@
 import { type State, type Piece, Direction } from "./well";
 import { piece_position, random_new_piece } from "./well";
 
-export const is_valid = (state: State) => {
+const is_valid = (state: State) => {
 	const position = piece_position(state.piece);
 	return position.every(
 		(coord) =>
@@ -9,6 +9,10 @@ export const is_valid = (state: State) => {
 			Array.from(Array(10), (_, index) => index).includes(coord[1]) &&
 			!state.well[coord[0]][coord[1]]
 	);
+};
+
+const is_game_over = (well: boolean[][]) => {
+	return well.slice(16).some((flat) => flat.some((tile) => tile));
 };
 
 const offset_piece = (piece: Piece, offset: number[]) => {
@@ -20,6 +24,9 @@ const offset_piece = (piece: Piece, offset: number[]) => {
 };
 
 const offset_state = (state: State, offset: number[]) => {
+	if (state.piece == null) {
+		return state;
+	}
 	const result: State = {
 		...state,
 		piece: offset_piece(state.piece, offset),
@@ -48,12 +55,15 @@ export const new_state = (state: State) => {
 	const queue = Array.from(state.queue);
 	queue.pop();
 	queue.unshift(state.piece.piece_type);
-	const piece = random_new_piece(queue);
+	const piece = is_game_over(well) ? null : random_new_piece(queue);
 	const result: State = { well, piece, score, queue };
 	return result;
 };
 
 export const rotate_state = (state: State, direction: Direction) => {
+	if (state.piece == null) {
+		return state;
+	}
 	const result_piece: Piece = {
 		...state.piece,
 		direction:
