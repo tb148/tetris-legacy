@@ -1,7 +1,10 @@
-import { type State, type Piece, Direction } from "./well";
-import { piece_position, random_new_piece } from "./well";
+import { type State, type Piece, Direction } from "./state";
+import { piece_position, random_new_piece } from "./state";
 
 const is_valid = (state: State) => {
+	if (state.piece == null) {
+		return true;
+	}
 	const position = piece_position(state.piece);
 	return position.every(
 		(coord) =>
@@ -23,7 +26,7 @@ const offset_piece = (piece: Piece, offset: number[]) => {
 	return result;
 };
 
-const offset_state = (state: State, offset: number[]) => {
+export const offset_state = (state: State, offset: number[]) => {
 	if (state.piece == null) {
 		return state;
 	}
@@ -31,11 +34,6 @@ const offset_state = (state: State, offset: number[]) => {
 		...state,
 		piece: offset_piece(state.piece, offset),
 	};
-	return result;
-};
-
-export const valid_offset_state = (state: State, offset: number[]) => {
-	const result = offset_state(state, offset);
 	if (is_valid(result)) {
 		return result;
 	}
@@ -43,12 +41,15 @@ export const valid_offset_state = (state: State, offset: number[]) => {
 };
 
 export const new_state = (state: State) => {
+	if (state.piece == null) {
+		return state;
+	}
 	let well: boolean[][] = Array.from(state.well, (flat) => Array.from(flat));
 	const position = piece_position(state.piece);
 	position.forEach((coord) => (well[coord[0]][coord[1]] = true));
 	well = well.filter((flat) => !flat.every((tile) => tile));
 	let score = state.score;
-	while (well.length < 40) {
+	while (well.length < 20) {
 		well.push(Array.from(Array(10), () => false));
 		score++;
 	}
@@ -73,22 +74,21 @@ export const rotate_state = (state: State, direction: Direction) => {
 	if (is_valid(result_state)) {
 		return result_state;
 	}
+	if (direction == Direction.Down || result_piece.piece_type == "I") {
+		return state;
+	}
 	if (
 		direction == Direction.Right &&
-		is_valid(offset_state(result_state, [0, 1]))
+		offset_state(result_state, [0, 1]) != result_state
 	) {
 		return offset_state(result_state, [0, 1]);
 	}
-	if (
-		direction != Direction.Down &&
-		result_piece.piece_type != "I" &&
-		is_valid(offset_state(result_state, [0, -1]))
-	) {
+	if (offset_state(result_state, [0, -1]) != result_state) {
 		return offset_state(result_state, [0, -1]);
 	}
 	if (
 		direction == Direction.Left &&
-		is_valid(offset_state(result_state, [0, 1]))
+		offset_state(result_state, [0, 1]) != result_state
 	) {
 		return offset_state(result_state, [0, 1]);
 	}

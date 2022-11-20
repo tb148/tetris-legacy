@@ -1,29 +1,57 @@
 <script lang="ts">
-	import type { State } from "./lib/well";
-	import display_game from "./lib/game";
-	import { empty_state } from "./lib/well";
-	import { new_state, valid_offset_state } from "./lib/move";
+	import { Direction, type State } from "./lib/state";
+	import display_well from "./lib/well";
+	import { empty_state, offset } from "./lib/state";
+	import { new_state, rotate_state, offset_state } from "./lib/move";
 
 	let history: State[] = [empty_state()];
 	$: state = history.at(-1);
-	$: game = display_game(state);
+	$: well = display_well(state);
 
 	const reset = () => {
 		history = [empty_state()];
 	};
-	const move_down = () => {
-		const result = valid_offset_state(state, [-1, 0]);
-		if (result == state) {
-			history = [...history, new_state(state)];
-		} else {
+	const move = (direction: Direction) => {
+		const result = offset_state(state, offset[direction]);
+		if (result != state) {
 			history = [...history, result];
+		} else if (direction == Direction.Down) {
+			history = [...history, new_state(state)];
+		}
+	};
+	const rotate = (direction: Direction) => {
+		const result = rotate_state(state, direction);
+		if (result != state) {
+			history = [...history, result];
+		}
+	};
+	const key_press = (event: KeyboardEvent) => {
+		if (event.code == "KeyA") {
+			move(Direction.Left);
+		}
+		if (event.code == "KeyS") {
+			move(Direction.Down);
+		}
+		if (event.code == "KeyD") {
+			move(Direction.Right);
+		}
+		if (event.code == "KeyK") {
+			rotate(Direction.Left);
+		}
+		if (event.code == "KeyL") {
+			rotate(Direction.Right);
+		}
+		if (event.code == "Semicolon") {
+			rotate(Direction.Down);
 		}
 	};
 </script>
 
+<svelte:window on:keydown={key_press} />
 <template>
+	Score: {state.score}
 	<main>
-		{#each game as flat, i}
+		{#each well as flat, i}
 			{#each flat as tile, j}
 				<div class="tile tile-{tile} tile-flat{i} tile-col{j}" />
 			{/each}
@@ -31,7 +59,6 @@
 	</main>
 
 	<button on:click={reset}>Reset</button>
-	<button on:click={move_down}>Down</button>
 </template>
 
 <style lang="scss">
@@ -52,7 +79,7 @@
 		}
 
 		.tile-alive {
-			background-color: green;
+			background-color: red;
 		}
 
 		.tile-dead {

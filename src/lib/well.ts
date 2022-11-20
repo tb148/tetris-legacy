@@ -1,60 +1,14 @@
-import piece_data from "./piece_data.json";
+import type { State } from "./state";
+import { piece_position } from "./state";
 
-type PieceType = "I" | "J" | "L" | "O" | "S" | "T" | "Z";
-
-export enum Direction {
-	Up,
-	Right,
-	Down,
-	Left,
-}
-
-export type Piece = {
-	piece_type: PieceType;
-	direction: Direction;
-	coord: number[];
-};
-
-export type State = {
-	well: boolean[][];
-	piece: Piece | null;
-	score: number;
-	queue: PieceType[];
-};
-
-export const piece_position = (piece: Piece) => {
-	const data: number[][] = piece_data[piece.piece_type][piece.direction];
-	return data.map((coord) => [
-		piece.coord[0] + coord[0],
-		piece.coord[1] + coord[1],
-	]);
-};
-
-const piece_types: PieceType[] = ["I", "J", "L", "O", "S", "T", "Z"];
-
-export const random_new_piece = (queue: PieceType[]) => {
-	const valid_piece_types = piece_types.filter(
-		(valid_piece_type) => !queue.includes(valid_piece_type)
+export default (state: State) => {
+	const result: string[][] = state.well.map((flat) =>
+		flat.map((tile) => (tile ? "dead" : "empty"))
 	);
-	const piece_type =
-		valid_piece_types[Math.floor(Math.random() * valid_piece_types.length)];
-	const result: Piece = {
-		piece_type,
-		direction: Direction.Up,
-		coord: [piece_type == "I" ? 19 : 18, piece_type == "O" ? 4 : 3],
-	};
-	return result;
-};
-
-const empty_well = () =>
-	Array.from(Array(40), () => Array.from(Array(10), () => false));
-
-export const empty_state = () => {
-	const result: State = {
-		well: empty_well(),
-		piece: random_new_piece(["S", "Z", "S", "Z"]),
-		score: 0,
-		queue: ["S", "Z", "S", "Z"],
-	};
-	return result;
+	if (state.piece == null) {
+		return result.slice(0, 20).reverse();
+	}
+	const position = piece_position(state.piece);
+	position.forEach((coord) => (result[coord[0]][coord[1]] = "alive"));
+	return result.slice(0, 20).reverse();
 };
