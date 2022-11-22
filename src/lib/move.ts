@@ -8,7 +8,7 @@ const is_valid = (state: State) => {
 	const position = piece_position(state.piece);
 	return position.every(
 		(coord) =>
-			Array.from(Array(40), (_, index) => index).includes(coord[0]) &&
+			Array.from(Array(20), (_, index) => index).includes(coord[0]) &&
 			Array.from(Array(10), (_, index) => index).includes(coord[1]) &&
 			!state.well[coord[0]][coord[1]]
 	);
@@ -74,20 +74,87 @@ export const rotate_state = (state: State, direction: Direction) => {
 	if (is_valid(result_state)) {
 		return result_state;
 	}
-	if (direction == Direction.Down || result_piece.piece_type == "I") {
-		return state;
+	let can_left_kick = true;
+	let can_right_kick = true;
+	if (result_piece.piece_type == "I") {
+		if (
+			result_piece.direction == Direction.Up ||
+			result_piece.direction == Direction.Down
+		) {
+			can_left_kick = false;
+		} else {
+			can_right_kick = false;
+		}
 	}
 	if (
-		direction == Direction.Right &&
+		result_piece.piece_type == "J" ||
+		result_piece.piece_type == "L" ||
+		result_piece.piece_type == "T"
+	) {
+		if (
+			Array.from(Array(10), (_, index) => index).includes(
+				result_piece.coord[0] + 1
+			)
+		) {
+			for (let i = 0; i < 3; i++) {
+				if (
+					result_state.well[result_piece.coord[0] + 1][
+						result_piece.coord[1] + i
+					]
+				) {
+					can_left_kick = false;
+					can_right_kick = false;
+				}
+			}
+		}
+		if (
+			Array.from(Array(10), (_, index) => index).includes(
+				result_piece.coord[0]
+			)
+		) {
+			for (let i = 0; i < 3; i++) {
+				if (
+					result_state.well[result_piece.coord[0]][
+						result_piece.coord[1] + i
+					]
+				) {
+					can_right_kick = true;
+				}
+			}
+		}
+		if (
+			Array.from(Array(10), (_, index) => index).includes(
+				result_piece.coord[0] + 2
+			)
+		) {
+			for (let i = 0; i < 3; i++) {
+				if (
+					result_state.well[result_piece.coord[0] + 2][
+						result_piece.coord[1] + i
+					]
+				) {
+					can_left_kick = true;
+				}
+			}
+		}
+	}
+	if (
+		direction == Direction.Left &&
+		can_right_kick &&
 		offset_state(result_state, [0, 1]) != result_state
 	) {
 		return offset_state(result_state, [0, 1]);
 	}
-	if (offset_state(result_state, [0, -1]) != result_state) {
+	if (
+		direction != Direction.Down &&
+		can_left_kick &&
+		offset_state(result_state, [0, -1]) != result_state
+	) {
 		return offset_state(result_state, [0, -1]);
 	}
 	if (
-		direction == Direction.Left &&
+		direction == Direction.Right &&
+		can_right_kick &&
 		offset_state(result_state, [0, 1]) != result_state
 	) {
 		return offset_state(result_state, [0, 1]);

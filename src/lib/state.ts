@@ -41,7 +41,7 @@ export const random_new_piece = (queue: PieceType[]) => {
 	const result: Piece = {
 		piece_type,
 		direction: Direction.Up,
-		coord: [piece_type == "I" ? 16 : 17, piece_type == "O" ? 4 : 3],
+		coord: [16, 3],
 	};
 	return result;
 };

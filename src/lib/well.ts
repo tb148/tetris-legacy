@@ -6,9 +6,9 @@ export default (state: State) => {
 		flat.map((tile) => (tile ? "dead" : "empty"))
 	);
 	if (state.piece == null) {
-		return result.slice(0, 20).reverse();
+		return result;
 	}
 	const position = piece_position(state.piece);
 	position.forEach((coord) => (result[coord[0]][coord[1]] = "alive"));
-	return result.slice(0, 20).reverse();
+	return result;
 };
