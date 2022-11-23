@@ -3,9 +3,11 @@
   import { Direction, type State } from "./lib/state";
   import { empty_state, offset } from "./lib/state";
   import { new_state, rotate_state, offset_state } from "./lib/move";
+  import display_well from "./lib/well";
 
   let history: State[] = [empty_state()];
   $: state = history.at(-1);
+  $: well = display_well(state);
 
   const reset = () => {
     history = [empty_state()];
@@ -55,7 +57,7 @@
 <template>
   <div class="game">
     <div class="main">
-      <div class="well"><Well {state} /></div>
+      <div class="well"><Well {well} /></div>
       <div class="about">
         <div class="text">Score: {state.score}</div>
         <div class="text">

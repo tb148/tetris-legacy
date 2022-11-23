@@ -1,8 +1,7 @@
+<svelte:options immutable />
+
 <script lang="ts">
-  import type { State } from "./lib/state";
-  import display_well from "./lib/well";
-  export let state: State;
-  $: well = display_well(state);
+  export let well;
 </script>
 
 <template>
